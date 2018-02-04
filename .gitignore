@@ -1,4 +1,17 @@
+*.IAB
+*.IAD
+*.IMB
+*.IMD
+*.PFI
+*.PO
+*.PR
+*.PRI
+*.PS
+*.WK3
 *~
+*.idea/
+*cmake-build-debug/
+*CMakeLists.txt
 obj/
 bin/
 .gdb.in

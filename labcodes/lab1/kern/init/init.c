@@ -9,10 +9,25 @@
 #include <intr.h>
 #include <pmm.h>
 #include <kmonitor.h>
+#include <picirq.h>
 int kern_init(void) __attribute__((noreturn));
 void grade_backtrace(void);
 static void lab1_switch_test(void);
-
+static void lab1_switch_to_user();
+static void lab1_switch_to_kernel();
+#define __NR_fork  0
+static  int my_syscall(void){
+    cprintf("my syscall \n");
+    long  _res;
+    asm volatile("int $0x80": "=a"(_res):"0"(__NR_fork));
+    cprintf("my syscall end --- \n");
+    lab1_switch_to_kernel();
+    return _res;
+}
+static void syscall_init(void){
+    cprintf("init syscall ---  \n");
+    pic_enable(T_SYSCALL);
+}
 int
 kern_init(void) {
     extern char edata[], end[];
@@ -31,7 +46,7 @@ kern_init(void) {
 
     pic_init();                 // init interrupt controller
     idt_init();                 // init interrupt descriptor table
-
+    syscall_init();
     clock_init();               // init clock interrupt
     intr_enable();              // enable irq interrupt
 
@@ -39,9 +54,15 @@ kern_init(void) {
     // user/kernel mode switch test
     //lab1_switch_test();
 
+    lab1_switch_to_user();
+    my_syscall();
+
+
+
     /* do nothing */
     while (1);
 }
+
 
 void __attribute__((noinline))
 grade_backtrace2(int arg0, int arg1, int arg2, int arg3) {
@@ -84,11 +105,24 @@ lab1_print_cur_status(void) {
 static void
 lab1_switch_to_user(void) {
     //LAB1 CHALLENGE 1 : TODO
+    asm volatile (
+    "sub $0x8, %%esp \n"
+            "int %0 \n"
+            "movl %%ebp, %%esp"
+    :
+    : "i"(T_SWITCH_TOU)
+    );
 }
 
 static void
 lab1_switch_to_kernel(void) {
     //LAB1 CHALLENGE 1 :  TODO
+    asm volatile (
+    "int %0 \n"
+            "movl %%ebp, %%esp \n"
+    :
+    : "i"(T_SWITCH_TOK)
+    );
 }
 
 static void

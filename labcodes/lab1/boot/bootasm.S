@@ -55,6 +55,7 @@ seta20.2:
     # Switches processor into 32-bit mode.
     ljmp $PROT_MODE_CSEG, $protcseg
 
+//32位的代码段
 .code32                                             # Assemble for 32-bit mode
 protcseg:
     # Set up the protected-mode data segment registers

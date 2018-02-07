@@ -93,7 +93,7 @@ gdt_init(void) {
 
 /* pmm_init - initialize the physical memory management */
 void
-pmm_init(void) {
+pmm_init(void) { 
     gdt_init();
 }
 

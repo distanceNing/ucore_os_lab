@@ -13,7 +13,21 @@
 int kern_init(void) __attribute__((noreturn));
 void grade_backtrace(void);
 static void lab1_switch_test(void);
-
+static void lab1_switch_to_user();
+static void lab1_switch_to_kernel();
+#define __NR_fork  0
+static  int my_syscall(void){
+    cprintf("my syscall \n");
+    long  _res;
+    asm volatile("int $0x80": "=a"(_res):"0"(__NR_fork));
+    cprintf("my syscall end --- \n");
+    lab1_switch_to_kernel();
+    return _res;
+}
+static void syscall_init(void){
+    cprintf("init syscall ---  \n");
+    pic_enable(T_SYSCALL);
+}
 int
 kern_init(void) {
     extern char edata[], end[];
@@ -85,11 +99,24 @@ lab1_print_cur_status(void) {
 static void
 lab1_switch_to_user(void) {
     //LAB1 CHALLENGE 1 : TODO
+    asm volatile (
+    "sub $0x8, %%esp \n"
+            "int %0 \n"
+            "movl %%ebp, %%esp"
+    :
+    : "i"(T_SWITCH_TOU)
+    );
 }
 
 static void
 lab1_switch_to_kernel(void) {
     //LAB1 CHALLENGE 1 :  TODO
+    asm volatile (
+    "int %0 \n"
+            "movl %%ebp, %%esp \n"
+    :
+    : "i"(T_SWITCH_TOK)
+    );
 }
 
 static void

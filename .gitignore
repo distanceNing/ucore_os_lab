@@ -9,6 +9,7 @@
 *.PS
 *.WK3
 *~
+*.vscode/
 *.idea/
 *cmake-build-debug/
 *CMakeLists.txt
